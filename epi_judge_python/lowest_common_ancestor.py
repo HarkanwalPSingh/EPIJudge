@@ -6,12 +6,39 @@ from test_framework import generic_test
 from test_framework.binary_tree_utils import must_find_node, strip_parent_link
 from test_framework.test_failure import TestFailure
 from test_framework.test_utils import enable_executor_hook
+from collections import namedtuple
 
+
+Status = namedtuple('Status', ('targetNodes', 'ancestor'))
+
+def lcaHelper(tree: BinaryTreeNode, node0: BinaryTreeNode, node1: BinaryTreeNode):
+    
+    if not tree:
+        return Status(targetNodes=0, ancestor=None)
+    
+    leftResult = lcaHelper(tree.left, node0, node1)
+    if leftResult.targetNodes == 2:
+      return leftResult
+    
+    rightResult = lcaHelper(tree.right, node0, node1)
+    if rightResult.targetNodes == 2:
+        return rightResult
+    
+    targetNodes = 0
+
+    if node0 == tree:
+      targetNodes += 1
+    if node1 == tree:
+      targetNodes += 1
+    
+    targetNodes += (leftResult.targetNodes + rightResult.targetNodes)
+
+    return Status(targetNodes=targetNodes, ancestor=tree if targetNodes == 2 else None)
 
 def lca(tree: BinaryTreeNode, node0: BinaryTreeNode,
         node1: BinaryTreeNode) -> Optional[BinaryTreeNode]:
-    # TODO - you fill in here.
-    return None
+
+    return lcaHelper(tree,node0,node1).ancestor
 
 
 @enable_executor_hook
